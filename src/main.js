@@ -38,6 +38,8 @@ import { createAudio } from "./audio.js";
 app.extensions.push(createAudio(app));
 import { createPresentation } from "./presentation.js";
 app.extensions.push(createPresentation(app));
+import { createCharacterReactions } from "./character-reactions.js";
+app.extensions.push(createCharacterReactions(app));
 // ── END FACET WIRING ──
 
 const cameras = {
