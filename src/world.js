@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { box, ball, rod, group, createMaterials, mappedMaterial as mat, capturePoses } from "./geometry.js";
+import { dressNightHome } from "./home-atmosphere.js";
 
 // Exact delivered Genex asset path: keep this URL and the visible nursery use intact.
 export const BUNNY_ASSET_PATH = "assets/genex/e8c7e356-7ef7-4cbf-a1d7-adc63b1760dd/a-single-adorable-chunky-stuffed-bunny-t-cmuy4n9e.glb";
@@ -13,9 +14,8 @@ export function createWorld(scene) {
   box(home, 9.6, 0.42, 7.6, ink, 0, -0.26, 0, 0.15);
   box(home, 9.35, 0.11, 7.35, oak, 0, -0.015, 0);
   for (let i = 0; i < 19; i++) {
-    const plank = mat(i % 3 === 0 ? "#bd885f" : i % 3 === 1 ? "#cea073" : "#d6aa7b");
+    const plank = mat(i % 3 === 0 ? "#b48156" : i % 3 === 1 ? "#c69a6c" : "#cea474", 0.83, { kind: "wood", seed: i + 3, grain: 0.65, bumpScale: 0.008 });
     box(home, 0.477, 0.045, 7.2, plank, -4.32 + i * 0.48, 0.055, 0, 0.01);
-    for (let k = 0; k < 4; k++) box(home, 0.01, 0.006, 0.65, oak, -4.47 + i * 0.48 + k * 0.085, 0.08, -2.2 + ((i * 13 + k * 7) % 40) * 0.13, 0.001);
   }
   box(home, 9.4, 2.8, 0.18, wall, 0, 1.45, -3.65);
   box(home, 0.18, 2.8, 7.35, wall, -4.65, 1.45, 0);
@@ -30,10 +30,10 @@ export function createWorld(scene) {
   box(door, 0.78, 1.05, 0.04, blue, 0, 1.62, 0.17);
   const doorKnob = ball(door, 0.36, 1.07, 0.2, 0.07, 0.07, 0.07, mat("#f8c86b", 0.3));
   box(home, 1.86, 1.64, 0.13, cream, 2.55, 1.88, -3.48);
-  box(home, 1.61, 1.38, 0.14, mat("#243551"), 2.55, 1.88, -3.4);
+  box(home, 1.61, 1.38, 0.14, mat("#102947", 0.62, { emissive: "#174e85", emissiveIntensity: 0.45 }), 2.55, 1.88, -3.4);
   box(home, 0.07, 1.42, 0.04, cream, 2.55, 1.88, -3.3);
   box(home, 1.61, 0.07, 0.04, cream, 2.55, 1.88, -3.3);
-  ball(home, 2.98, 2.28, -3.3, 0.19, 0.19, 0.035, mat("#ffedbb", 0.82, { emissive: "#f1dca0", emissiveIntensity: 0.5 }));
+  ball(home, 2.98, 2.28, -3.3, 0.19, 0.19, 0.035, mat("#d8ebff", 0.82, { emissive: "#a9d0ff", emissiveIntensity: 0.75 }));
   for (let i = 0; i < 7; i++) ball(home, 1.9 + (i * 0.33) % 1.2, 1.36 + (i * 0.41) % 1.13, -3.29, 0.018, 0.018, 0.01, white);
 
   const kitchen = group(scene, "water-station", -3.3, 0, -2.55);
@@ -47,8 +47,8 @@ export function createWorld(scene) {
   const mugHandle = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.035, 8, 20), coral); mugHandle.position.set(0.76, 1.34, 0.1); kitchen.add(mugHandle);
 
   const rug = group(scene, "nursery-rug", 0.65, 0.11, 0.6);
-  box(rug, 4.45, 0.05, 3.65, mat("#536f85"), 0, 0, 0, 0.02);
-  box(rug, 4.1, 0.015, 3.3, mat("#678399"), 0, 0.03, 0, 0.004);
+  box(rug, 4.45, 0.05, 3.65, mat("#344f71", 0.95, { kind: "cloth", grain: 0.45, repeat: 3, bumpScale: 0.012 }), 0, 0, 0, 0.02);
+  box(rug, 4.1, 0.015, 3.3, mat("#57718e", 0.95, { kind: "cloth", grain: 0.55, repeat: 3, bumpScale: 0.012 }), 0, 0.03, 0, 0.004);
   for (let i = 0; i < 15; i++) {
     const x = -1.92 + i * 0.27;
     rod(rug, [x, 0, -1.8], [x, 0, -1.98], 0.018, cream);
@@ -58,7 +58,7 @@ export function createWorld(scene) {
   box(sofa, 1.75, 0.56, 2.25, coral, 0, 0.42, 0, 0.18);
   box(sofa, 0.3, 1.05, 2.35, coral, -0.77, 0.79, 0, 0.14);
   for (const z of [-1.02, 1.02]) box(sofa, 1.75, 0.36, 0.32, coral, 0, 0.91, z, 0.14);
-  for (const z of [-0.49, 0.49]) box(sofa, 1.3, 0.2, 0.88, mat("#eca797"), 0.14, 0.76, z, 0.09);
+  for (const z of [-0.49, 0.49]) box(sofa, 1.3, 0.2, 0.88, mat("#eaa294", 0.9, { kind: "cloth", grain: 0.45, repeat: 2, bumpScale: 0.008 }), 0.14, 0.76, z, 0.09);
   const pillow = box(sofa, 0.26, 0.58, 0.57, cream, -0.47, 1.06, 0.54, 0.12); pillow.rotation.x = 0.22;
 
   // Low front crib rail keeps the baby's face readable from the game camera.
@@ -76,9 +76,9 @@ export function createWorld(scene) {
   box(nightstand, 0.85, 0.78, 0.85, oak, 0, 0.49, 0);
   box(nightstand, 0.96, 0.12, 0.96, cream, 0, 0.94, 0);
   rod(nightstand, [0, 1, 0], [0, 1.52, 0], 0.065, oak);
-  const lampshade = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.43, 0.45, 32), mat("#ffd38a", 0.82, { emissive: "#ffb854", emissiveIntensity: 0.7 }));
+  const lampshade = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.43, 0.45, 32), mat("#ebba72", 0.9, { kind: "cloth", grain: 0.35, emissive: "#ffae48", emissiveIntensity: 0.38 }));
   lampshade.position.set(0, 1.6, 0); nightstand.add(lampshade);
-  const lamp = new THREE.PointLight("#ffbc68", 14, 8, 2); lamp.position.set(4, 1.55, 0); lamp.userData.tag = "light-nightlight"; scene.add(lamp);
+  const lamp = new THREE.PointLight("#ffb35d", 16, 8, 2); lamp.position.set(4, 1.35, 0); lamp.userData.tag = "light-nightlight"; scene.add(lamp);
 
   // Oversized nursery clutter makes the upcoming hazards readable.
   const toys = group(scene, "noisy-toys", 2.5, 0.13, 1.65);
@@ -115,14 +115,14 @@ export function createWorld(scene) {
     resolve(null);
   }));
 
-  const ambient = new THREE.HemisphereLight("#b6c9ed", "#72564d", 1.8);
+  const ambient = new THREE.HemisphereLight("#95b3ec", "#775948", 1.05);
   ambient.userData.tag = "light-ambient"; scene.add(ambient);
-  const key = new THREE.DirectionalLight("#ffe2b3", 3.2);
+  const key = new THREE.DirectionalLight("#e3d5cb", 1.6);
   key.position.set(-3, 9, 5); key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048); key.shadow.camera.left = -8; key.shadow.camera.right = 8;
-  key.shadow.camera.top = 8; key.shadow.camera.bottom = -8; key.shadow.normalBias = 0.035;
+  key.shadow.camera.top = 8; key.shadow.camera.bottom = -8; key.shadow.normalBias = 0.035; key.shadow.bias = -0.0001; key.shadow.radius = 4;
   key.userData.tag = "light-key"; scene.add(key);
-  const rim = new THREE.DirectionalLight("#7daeff", 1.5); rim.position.set(2, 4, -6); rim.userData.tag = "light-rim"; scene.add(rim);
+  const rim = new THREE.DirectionalLight("#78abff", 1.3); rim.position.set(2, 4, -6); rim.userData.tag = "light-rim"; scene.add(rim);
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), mat("#18253f"));
   ground.rotation.x = -Math.PI / 2; ground.position.y = -0.51; ground.receiveShadow = true; ground.userData.tag = "ground"; scene.add(ground);
 
@@ -141,10 +141,14 @@ export function createWorld(scene) {
     footprint("toys", toys, false), footprint("duck", duck, false),
     { id: "bunny", object: bunny, blocking: false, minX: 3.1, maxX: 3.8, minZ: 1.9, maxZ: 2.6 },
   ];
+  // Freeze the original authored footprints BEFORE cosmetic detailing. Decoration never
+  // becomes a solid obstacle and task target/group positions retain their original values.
+  const atmosphere = dressNightHome(scene, { home, sofa, crib, nightstand, toys, toyBlocks,
+    pacifier, ring, lamp, cream, oak, ink });
   const resetPoses = capturePoses([home, door, kitchen, rug, sofa, crib, nightstand, toys, duck,
-    pacifier, bunny, ambient, key, rim, lamp, ground]);
+    pacifier, bunny, ambient, key, rim, lamp, ground, atmosphere.root]);
   return {
-    home, materials, sink: kitchen, kitchen, door, doorPanel, doorKnob, pacifier, toys, toyBlocks, duck, crib,
+    home, materials, atmosphere, sink: kitchen, kitchen, door, doorPanel, doorKnob, pacifier, toys, toyBlocks, duck, crib,
     nightlight: nightstand, lampshade, lamp, mug, mugHandle, ring, rug, sofa, pillow,
     bunny, bunnyReady, ground, lights: { ambient, key, rim, lamp }, collisionFootprints,
     bounds: { minX: -4.45, maxX: 4.45, minZ: -3.4, maxZ: 3.5 },
