@@ -32,6 +32,8 @@ app.gameplay = createGameplay(app);
 
 // ── FACET WIRING ──
 // Each facet adds exactly ONE import and ONE app.extensions.push(createFacet(app)) line here.
+import { createCharacterReactions } from "./character-reactions.js";
+app.extensions.push(createCharacterReactions(app));
 // ── END FACET WIRING ──
 
 const cameras = {
