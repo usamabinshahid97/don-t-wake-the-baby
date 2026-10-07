@@ -36,6 +36,8 @@ import { createHomeAtmosphere } from "./home-atmosphere.js";
 app.extensions.push(createHomeAtmosphere(app));
 import { createAudio } from "./audio.js";
 app.extensions.push(createAudio(app));
+import { createPresentation } from "./presentation.js";
+app.extensions.push(createPresentation(app));
 // ── END FACET WIRING ──
 
 const cameras = {
