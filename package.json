@@ -1,0 +1,13 @@
+{
+  "name": "don-t-wake-the-baby",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A cozy nighttime stealth comedy game.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "preview": "python3 -m http.server 8080 --directory dist"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  }
+}

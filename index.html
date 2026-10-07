@@ -1,5 +1,6 @@
 <!doctype html>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Don’t Wake the Baby</title>
 <style>
   html,
@@ -33,15 +34,15 @@
      The only element besides the canvas is the fatal-error panel, hidden until a throw. -->
 <pre id="fatal"></pre>
 
-<!-- three.js is vendored with the studio: games build and run with no network at all. -->
+<!-- The standalone build copies pinned Three.js files into vendor/. -->
 <script type="importmap">
   {
     "imports": {
-      "three/webgpu": "/vendor/three.webgpu.js",
-      "three/tsl": "/vendor/three.tsl.js",
-      "three": "/vendor/three.module.js",
-      "three/addons/": "/vendor/three/examples/jsm/",
-      "three/": "/vendor/three/"
+      "three/webgpu": "./vendor/three.webgpu.js",
+      "three/tsl": "./vendor/three.tsl.js",
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/three/examples/jsm/",
+      "three/": "./vendor/three/"
     }
   }
 </script>
@@ -56,4 +57,4 @@
     window.__studio_error = { message: event.message, stack: event.error?.stack ?? "" };
   });
 </script>
-<script type="module" src="/src/main.js"></script>
+<script type="module" src="./src/main.js"></script>
