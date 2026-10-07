@@ -1,0 +1,24 @@
+{
+  "generator": "Studio genex__asset sfx; status inspected before spending",
+  "creditsQuotedTotal": 4,
+  "assets": [
+    {
+      "sound": "duck",
+      "generationId": "cmuy5emf90a1y3fo01pdhlfdi",
+      "createJobId": "993d0113-165a-4741-896c-90e04b26522a",
+      "deliveryJobId": "c6714a1f-86fb-4103-a430-279fc12a0d23",
+      "path": "assets/genex/c6714a1f-86fb-4103-a430-279fc12a0d23/one-isolated-short-ridiculous-rubber-duc-cmuy5emf.mp3",
+      "prompt": "One isolated short ridiculous rubber duck squeak for a comedy stealth game: a sharp rubbery squeeze, squeee-awk, tiny embarrassed descending tail. Under one second, dry close-up, no ambience, no speech, no music.",
+      "options": { "duration": 1 }
+    },
+    {
+      "sound": "toy",
+      "generationId": "cmuy5eype09xn2snucxu1pfpj",
+      "createJobId": "6118c6d1-65df-4bb8-ba7c-fdb29bb3dbdc",
+      "deliveryJobId": "2ab9265f-fb47-42f6-92cf-a34da0191958",
+      "path": "assets/genex/2ab9265f-fb47-42f6-92cf-a34da0191958/one-isolated-tiny-electronic-toy-alarm-f-cmuy5eyp.mp3",
+      "prompt": "One isolated tiny electronic toy alarm for a nighttime comedy stealth game: three comically urgent high little bleeps, cheap plastic baby toy speaker, beep-beep-BEEP then abruptly stops. Under one second, dry, no ambience, no speech, no music.",
+      "options": { "duration": 1 }
+    }
+  ]
+}
