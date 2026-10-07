@@ -34,6 +34,8 @@ app.gameplay = createGameplay(app);
 // Each facet adds exactly ONE import and ONE app.extensions.push(createFacet(app)) line here.
 import { createHomeAtmosphere } from "./home-atmosphere.js";
 app.extensions.push(createHomeAtmosphere(app));
+import { createAudio } from "./audio.js";
+app.extensions.push(createAudio(app));
 // ── END FACET WIRING ──
 
 const cameras = {
