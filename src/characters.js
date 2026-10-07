@@ -5,6 +5,8 @@ function reactionLabel(parent, text, x, y, z, color, size, tag) {
   const sprite = label(parent, text, x, y, z, color, size, tag);
   const canvas = sprite.material.map.image, ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const width = ctx.measureText(text).width;
+  if (width > 470) ctx.font = `bold ${Math.floor(70 * 470 / width)}px Trebuchet MS, sans-serif`;
   ctx.lineJoin = "round"; ctx.lineWidth = 8; ctx.strokeStyle = "#55434c";
   ctx.strokeText(text, 256, 64); ctx.fillText(text, 256, 64);
   sprite.material.map.needsUpdate = true;
@@ -46,6 +48,9 @@ export function createCharacters(scene, world) {
   }
   ball(face, 0.015, -0.115, 0.383, 0.057, 0.072, 0.036, skin);
   const mouth = ball(face, 0.02, -0.25, 0.335, 0.065, 0.047, 0.018, hair);
+  const smile = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.016, 6, 18, Math.PI), hair);
+  smile.position.set(0.02, -0.215, 0.355); smile.rotation.z = Math.PI;
+  smile.castShadow = true; smile.visible = false; face.add(smile);
   const shoulders = [], elbows = [], arms = [], hands = [];
   for (const side of [-1, 1]) {
     const shoulder = group(upperBody, "parent-arm-pivot", side * 0.34, 1.32, 0);
@@ -61,6 +66,25 @@ export function createCharacters(scene, world) {
   const panicText = reactionLabel(parent, "I HAD ONE JOB.", 0, 2.8, 0, "#ffbb9e", 0.49, "parent-reaction");
   const winText = reactionLabel(parent, "STILL ASLEEP!", 0, 2.8, 0, "#cce4c5", 0.49, "parent-reaction");
   panicText.visible = winText.visible = false;
+  const reactionText = {
+    freeze: reactionLabel(parent, "DON’T. MOVE.", 0, 2.8, 0, "#ffe5b3", 0.55, "parent-reaction"),
+    recoil: reactionLabel(parent, "TOO LOUD!", 0, 2.8, 0, "#ffbb9e", 0.55, "parent-reaction"),
+    shush: reactionLabel(parent, "PLEASE BE QUIET.", 0, 2.8, 0, "#ffe5b3", 0.55, "parent-reaction"),
+    water: reactionLabel(parent, "ONE TINY SIP.", 0, 2.8, 0, "#cce4e1", 0.5, "parent-reaction"),
+    pacifier: reactionLabel(parent, "FOUND IT!", 0, 2.8, 0, "#cce4c5", 0.5, "parent-reaction"),
+    toy: reactionLabel(parent, "SHHH, ROBOT.", 0, 2.8, 0, "#ffe5b3", 0.5, "parent-reaction"),
+    door: reactionLabel(parent, "WHO IS IT?!", 0, 2.8, 0, "#ffe5b3", 0.5, "parent-reaction"),
+  };
+  Object.values(reactionText).forEach(sprite => { sprite.visible = false; });
+  const surpriseRays = group(face, "parent-surprise-rays");
+  for (const side of [-1, 1]) {
+    rod(surpriseRays, [side * 0.48, 0.17, 0.08], [side * 0.67, 0.3, 0.08], 0.025, cream);
+    rod(surpriseRays, [side * 0.38, 0.43, 0.08], [side * 0.47, 0.6, 0.08], 0.025, cream);
+  }
+  surpriseRays.visible = false;
+  const sweat = group(face, "parent-comic-sweat", 0.47, 0.11, 0.08);
+  ball(sweat, 0, 0, 0, 0.055, 0.09, 0.035, mat("#92c5df"));
+  sweat.visible = false;
 
   const baby = group(world.crib, "sleeping-baby");
   const babyBody = ball(baby, 0.29, 1.11, 0.05, 0.58, 0.17, 0.49, mat("#df9d93"));
@@ -118,7 +142,8 @@ export function createCharacters(scene, world) {
   return {
     parent, baby, sleepText, shushText, reset,
     parentPose: { torso, head: parentHead, upperBody, face, legs, shins, slippers, hips, knees, ankles,
-      eyes: parentEyes, pupils, eyebrows, mouth, arms, shoulders, elbows, hands, panicText, winText },
+      eyes: parentEyes, pupils, eyebrows, mouth, smile, arms, shoulders, elbows, hands, panicText, winText,
+      reactionText, surpriseRays, sweat },
     babyPose: { body: babyBody, head: babyHead, headPivot, face: babyFace, eyes: babyEyes,
       sleepyEyes, awakeEyes, openEyes, pupils: babyPupils, eyebrows: babyBrows,
       mouth: babyMouth, cryMouth, cheeks: babyCheeks, arms: babyArms,
