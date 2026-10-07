@@ -57,6 +57,8 @@ function reset(seed) {
   cameras.default();
 }
 
+app.restartNight = () => reset(app.state.seed);
+
 app.api = installStudio({
   canvas: renderer.domElement, scene, renderer, camera,
   input: { pointerLock: false },
@@ -86,8 +88,5 @@ app.api = installStudio({
   cameras, demos,
 });
 
-app.api.hud.text("title", "DON’T WAKE THE BABY", { x: 0.045, y: 0.055, size: 27, color: "#ffe6bb" });
-app.api.hud.text("subtitle", "a very quiet catastrophe", { x: 0.047, y: 0.112, size: 14, color: "#b7c6d9" });
-app.api.hud.text("midnight", "2:13 AM  ·  Everyone is asleep. For now.", { x: 0.045, y: 0.935, size: 15, color: "#f4d7ae" });
 // HUD hooks run only after app.api exists; initial reset must not depend on HUD readiness.
 for (const extension of [app.gameplay, ...app.extensions]) extension.bindHud?.(app.api);
