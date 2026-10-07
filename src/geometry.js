@@ -5,15 +5,17 @@ import { bakeTexture } from "./materials.js";
 const maps = new Map();
 
 /** Subtle, seeded surface grain keeps the delivered pastel palette and lighting intact. */
-export function mappedMaterial(color, roughness = 0.82, { kind = "plaster", seed = 1, ...options } = {}) {
-  const key = `${kind}:${seed}`;
+export function mappedMaterial(color, roughness = 0.82, {
+  kind = "plaster", seed = 1, grain = 0.08, repeat = 1, bumpScale = 0.002, ...options
+} = {}) {
+  const key = `${kind}:${seed}:${grain}:${repeat}`;
   if (!maps.has(key)) {
-    const baked = bakeTexture({ kind, seed, size: 64, palette: [0xffffff] });
+    const baked = bakeTexture({ kind, seed, size: 128, palette: [0xc9c9c9, 0xffffff], repeat });
     const canvas = baked.map.image;
     const ctx = canvas.getContext("2d");
     const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
     for (let i = 0; i < pixels.data.length; i += 4) {
-      for (let c = 0; c < 3; c++) pixels.data[i + c] = 255 - (255 - pixels.data[i + c]) * 0.08;
+      for (let c = 0; c < 3; c++) pixels.data[i + c] = 255 - (255 - pixels.data[i + c]) * grain;
     }
     ctx.putImageData(pixels, 0, 0);
     baked.map.needsUpdate = true;
@@ -21,7 +23,7 @@ export function mappedMaterial(color, roughness = 0.82, { kind = "plaster", seed
   }
   const baked = maps.get(key);
   const material = new THREE.MeshStandardMaterial({
-    color, roughness, map: baked.map, bumpMap: baked.bumpMap, bumpScale: 0.002, ...options,
+    color, roughness, map: baked.map, bumpMap: baked.bumpMap, bumpScale, ...options,
   });
   material.userData.baked = kind;
   return material;
@@ -29,8 +31,8 @@ export function mappedMaterial(color, roughness = 0.82, { kind = "plaster", seed
 
 export function createMaterials() {
   return {
-    cream: mappedMaterial("#ffe5b3"), oak: mappedMaterial("#c98958", 0.82, { kind: "wood" }),
-    wall: mappedMaterial("#657b99"), coral: mappedMaterial("#e28e81"),
+    cream: mappedMaterial("#ffe5b3"), oak: mappedMaterial("#b98558", 0.82, { kind: "wood", grain: 0.5, bumpScale: 0.012 }),
+    wall: mappedMaterial("#465c7c", 0.9, { grain: 0.3 }), coral: mappedMaterial("#db867d", 0.87, { kind: "cloth", grain: 0.4, repeat: 2, bumpScale: 0.008 }),
     blue: mappedMaterial("#799faa"), ink: mappedMaterial("#35455c"),
     skin: mappedMaterial("#f6c194"), hair: mappedMaterial("#553c40"), white: mappedMaterial("#fff4d9"),
   };
