@@ -3,7 +3,7 @@ import { box, ball, rod, group, mappedMaterial as mat } from "./geometry.js";
 
 // Static, nonblocking dressing. Caller freezes navigation footprints before this step.
 export function dressNightHome(scene, w) {
-  const { home, sofa, nightstand, toys, toyBlocks, pacifier, ring, kitchen, mug, mugHandle, door, cream, oak, ink } = w;
+  const { home, sofa, crib, nightstand, toys, toyBlocks, pacifier, ring, kitchen, mug, mugHandle, door, cream, oak, ink } = w;
   const root = group(scene, "night-atmosphere");
   const cloth = mat("#a6b2bc", 0.94, { kind: "cloth", grain: 0.5, repeat: 2, bumpScale: 0.008 });
   const piping = mat("#f3c1ab", 0.9, { kind: "cloth", grain: 0.3 });
@@ -169,8 +169,59 @@ export function dressNightHome(scene, w) {
   powerArc.rotation.set(-Math.PI / 2, 0, Math.PI * 0.675); powerArc.userData.tag = "toy-power-arc";
   power.add(powerArc); rod(power, [0, 0.004, -0.052], [0, 0.004, -0.004], 0.008, cream);
 
+  // Authored evidence of the 2 AM shift: feeding supplies, a folded throw and
+  // one small household joke. All sit on existing furniture/walls, never on routes.
+  const linen = mat("#c8d8c3", 0.97, { kind: "cloth", grain: 0.48, repeat: 2, bumpScale: 0.009 });
+  const stitch = mat("#779c9c", 0.95, { kind: "cloth", grain: 0.3 });
+  const feedingLinen = mat("#9fc5c5", 0.96, { kind: "cloth", grain: 0.4, repeat: 2, bumpScale: 0.009 });
+  const burpCloth = group(crib, "feeding-burp-cloth", -0.65, 0, 0.80);
+  // Front-left rail, below and to the side of the baby's face.
+  box(burpCloth, 0.62, 0.055, 0.30, feedingLinen, 0, 1.19, -0.035, 0.022);
+  box(burpCloth, 0.62, 0.36, 0.05, feedingLinen, 0, 1.04, 0.12, 0.025);
+  box(burpCloth, 0.62, 0.10, 0.05, feedingLinen, 0, 0.875, 0.11, 0.025);
+  for (const x of [-0.21, 0.21]) rod(burpCloth, [x, 0.89, 0.151], [x, 1.19, 0.151], 0.009, stitch);
+  rod(burpCloth, [-0.21, 0.90, 0.151], [0.21, 0.90, 0.151], 0.009, stitch);
+  // Three broad embroidered bars remain legible rather than noisy grain.
+  for (let i = 0; i < 3; i++) box(burpCloth, 0.20, 0.017, 0.006, stitch, 0, 1.00 + i * 0.04, 0.149, 0.003);
+
+  const bottle = group(nightstand, "midnight-feeding-bottle", -0.30, 1.01, 0.32);
+  const milk = mat("#f1dec0", 0.55, { grain: 0.16 });
+  const cap = mat("#dd9f9b", 0.58, { grain: 0.18 });
+  const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.095, 0.22, 24), milk);
+  glass.position.y = 0.11; glass.castShadow = true; glass.receiveShadow = true; bottle.add(glass);
+  const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.09, 0.055, 24), cap);
+  collar.position.y = 0.245; bottle.add(collar);
+  ball(bottle, 0, 0.30, 0, 0.052, 0.047, 0.052, cream);
+  for (let i = 0; i < 3; i++) box(bottle, 0.046, 0.009, 0.013, stitch, 0.01, 0.075 + i * 0.04, 0.09, 0.003);
+
+  const throwBlanket = group(sofa, "folded-night-shift-throw", 0.10, 0.90, -0.48);
+  box(throwBlanket, 0.91, 0.065, 0.62, linen, 0, 0, 0, 0.03);
+  box(throwBlanket, 0.86, 0.045, 0.42, linen, 0, 0.047, -0.07, 0.02);
+  for (const x of [-0.31, 0.31]) box(throwBlanket, 0.055, 0.009, 0.42, stitch, x, 0.074, -0.07, 0.004);
+  for (let i = 0; i < 7; i++) rod(throwBlanket, [-0.37 + i * 0.12, 0.006, 0.26],
+    [-0.37 + i * 0.12, -0.014, 0.34], 0.009, linen);
+
+  const bossPlaque = group(home, "tiny-boss-house-rule", -4.51, 1.97, 0.52);
+  bossPlaque.rotation.y = Math.PI / 2; bossPlaque.scale.setScalar(1.25);
+  box(bossPlaque, 1.14, 0.90, 0.065, oak, 0, 0, 0, 0.045);
+  box(bossPlaque, 1.00, 0.76, 0.02, cream, 0, 0, 0.044, 0.025);
+  const print = document.createElement("canvas"); print.width = 256; print.height = 192;
+  const printCtx = print.getContext("2d");
+  printCtx.fillStyle = "#26364c"; printCtx.textAlign = "center"; printCtx.textBaseline = "middle";
+  printCtx.font = "bold 52px Trebuchet MS, sans-serif";
+  printCtx.fillText("TINY", 128, 54); printCtx.fillText("BOSS", 128, 115);
+  // The crown is part of the painted sign, not a world-space UI marker.
+  printCtx.fillStyle = "#c88650"; printCtx.beginPath();
+  printCtx.moveTo(103, 145); printCtx.lineTo(110, 169); printCtx.lineTo(146, 169);
+  printCtx.lineTo(153, 145); printCtx.lineTo(136, 155); printCtx.lineTo(128, 140);
+  printCtx.lineTo(120, 155); printCtx.closePath(); printCtx.fill();
+  const printMap = new THREE.CanvasTexture(print); printMap.colorSpace = THREE.SRGBColorSpace;
+  const paintedRule = new THREE.Mesh(new THREE.PlaneGeometry(0.89, 0.66), mat("#ffffff", 0.95,
+    { map: printMap, transparent: true, depthWrite: false }));
+  paintedRule.position.z = 0.057; paintedRule.userData.tag = "tiny-boss-printed-rule"; bossPlaque.add(paintedRule);
+
   // Descendants inherit the semantic group, and also carry useful explicit part tags.
-  for (const object of [root, home, sofa, nightstand, toys, pacifier, kitchen, door]) object.traverse(o => {
+  for (const object of [root, home, sofa, crib, nightstand, toys, pacifier, kitchen, door]) object.traverse(o => {
     if (!o.userData.tag) o.userData.tag = `${object.userData.tag}-detail`;
   });
   return { root, button, buttonMaterial, eyeMat, waterMaterial, bellMaterial };
@@ -196,7 +247,7 @@ export function createHomeAtmosphere(app) {
     const toyOff = (Array.isArray(done) && done.includes("toy")) ||
       (done instanceof Set && done.has("toy")) ||
       (Array.isArray(state.tasks) && state.tasks.some(t => t?.id === "toy" && t.complete)) ||
-      state.tasksCompleted >= 3 || state.toyOff === true;
+      (!Array.isArray(done) && !(done instanceof Set) && state.tasksCompleted >= 3) || state.toyOff === true;
     buttonMaterial.emissiveIntensity = toyOff ? 0.05 : 0.8 + 0.25 * Math.sin(time * 3);
     eyeMat.emissiveIntensity = toyOff ? 0.02 : 0.65;
   }

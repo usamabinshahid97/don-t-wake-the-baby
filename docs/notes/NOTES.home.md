@@ -1,3 +1,62 @@
+# Cozy dollhouse — iteration 3: the tiny boss's night shift
+
+Read `.studio/BRIEF.md` first and inspected the current world/geometry/main and live default frame. Iteration 2 was accepted and the pacifier defect passed. This copy now includes the chores worker's actual movement/gameplay integration; the previous idle-foundation HARNESS flag is resolved and is no longer an active blocker.
+
+## Mandatory move implemented
+
+Added four small authored details on existing furniture/walls:
+
+- A folded cloth throw with broad woven stripes and restrained fringe on the sofa's unused seat.
+- A contrasting teal burp cloth folded over the crib's front-left rail, below and to the side of the baby's face, with stitched borders and three broad embroidered bars.
+- A small milk bottle beside the existing nightstand lamp, with a coral collar, nipple and measurement ticks, establishing the nearby feeding station.
+- One framed physical “TINY BOSS” wall rule with a painted crown above the sofa. This supports the existing tiny-dictator night-shift joke. Lettering is a map on the wall prop, not HUD or sprite UI.
+
+All changes are in `src/home-atmosphere.js`. No new furnishing, room expansion, solid floor clutter, routes, lights, camera, character animation, audio or input code. Reused the existing generated bunny without alteration or generation. Stopped at the requested detail layer.
+
+## Mandatory input defect: resolved by merged chores mechanism
+
+The initial state is now `phase: playing`, not the idle foundation state. No home-side movement implementation was added or required.
+
+Final required W 1.2s → A 0.8s → Space test:
+
+- Before: player (-0.4, 0.1, 1.25).
+- After W: player (-2.221998232778336, 0.1, -1.3887560612651797).
+- After A/Space: player (-3.9336237860314287, 0.1, -0.45313534713576287).
+- Actual distanceTravelled: 5.209921990261053; footstep and stomp events emitted. Final default frame `s4_screen.jpg` shows the parent beside the sofa/sink instead of on the rug.
+
+Thus [dead-input] no longer applies. A prior test also moved the parent to (-3.9582453837716765, 0.1, -0.4395510173480402). The mechanism comes from the integrated chores owner, not a pose change or camera workaround. Previous HARNESS text below is historical only; no replan remains necessary for an idle fork.
+
+## Integration correction
+
+The previous visual toy-off fallback assumed ordered completion (`tasksCompleted >= 3`). Merged gameplay supports arbitrary chore order with explicit `completedTasks`. Updated the registered visual extension to prefer explicit completion and use the count fallback only when that collection is unavailable. A three-chore run that still owes the toy therefore keeps its button/eyes lit, and completing the toy first immediately dims them. No gameplay state writes.
+
+## Fixed by looking
+
+- Baseline `iter_003/s1_screen.jpg`: accepted night atmosphere/landmarks plus newly merged chore HUD. Existing room readable; still lacks caregiving detail.
+- Inspected `c1_default.jpg` after the full detail move and `s2_screen.jpg` after real movement: blanket, plaque and feeding details visible, but the plaque was slightly small and burp cloth blended into the ivory crib.
+- Increased plaque scale to 1.25 and print contrast; gave the feeding cloth a distinct teal textile and slightly wider fold. Inspected `c2_default.jpg` and `s3_zoom.jpg`: plaque reads TINY BOSS, sofa fold/fringe and burp cloth stitches are visible; baby's face and center routes stay clear. Bottle sits on the existing stand below the shade.
+- Final `s4_screen.jpg` inspected after the required controls shows the parent displaced into the sink/sofa lane with all authored details retained. Console errors since load: none. FPS 60–62; 560 scene draw calls / 456,910 triangles (561 / 456,912 including the canvas overlay). MeanLuma 41 matches the integrated baseline; no atmosphere tuning.
+
+Frames:
+`/Users/usamabinshahid/Library/Application Support/Genex/runs/run_muy4m15o5n23/facet_home/self/iter_003/`.
+Baseline `s1_screen.jpg` → detail frame `c2_default.jpg`; motion proof `s4_screen.jpg`.
+
+## Contract review and API coordination
+
+- cozy-night-home: original warm lamp, blue moonlit window/panes, camera and existing room materials preserved. Final primary frames remain readable.
+- mapped-room: actual scene probes `homeMappedSurfaces: true`, `sofaMappedSurfaces: true`; every new standard material is mapped through geometry/materials helpers.
+- no-dom-ui / single-hud: no DOM additions or HUD objects; the newly merged chores HUD remains the existing single canvas overlay.
+- pacifier defect: accepted raised mint loop/pink butterfly shape untouched and still visible.
+- dead-input defect: actual x/z displacement and final photograph confirm real movement as detailed above. Awaiting judge verdict, not claiming automated acceptance.
+
+Navigation footprint changes: **none**. `src/world.js` is byte-identical to the integrated baseline, preserving collisionFootprints/bounds/taskTargets, group positions, all handles, bunny path and callbacks. Dressing still occurs after the original collision snapshot. Added details sit on the sofa, crib rail, stand and wall and never enter the center route.
+
+Geometry API decisions: `src/geometry.js` is unchanged; all helper signatures and color/roughness option behavior remain intact. Main/wiring/gameplay/characters/materials/studio are also byte-identical to the integrated baseline. Existing reset capture includes the new details, with no handle replacement.
+
+A temporary Node assertion verified unchanged world and non-owned files, no random/wall-clock/input/DOM additions, visual toy completion with arbitrary chore order against frozen gameplay state, and glow reset. Node syntax and git diff --check passed. No test fixture shipped. All current brief checks re-read before final verification.
+
+---
+
 # Cozy dollhouse — iteration 2: distinct chore landmarks
 
 Read `.studio/BRIEF.md` first and inspected the accepted live default before editing. Iteration 1 passed cozy-night-home, mapped-room, no-dom-ui and single-hud. Followed the director steer: focus on useful pacifier/toy/sink/door landmarks, preserve the accepted lighting and navigation, and stop without room expansion, extra furnishing, character animation, audio or movement work.
@@ -38,7 +97,7 @@ Compare accepted `s1_screen.jpg` with final `c2_default.jpg` / `s2_screen.jpg`.
 - defect-the-pacifier-near-the-rug-s-right: raised loop and butterfly shield replace the saucer silhouette; visually inspected at the original default camera/full resolution. Awaiting judge result, not claiming acceptance.
 - defect-dead-input-the-parent-remains-at-: input sequence still reports exact player x/y/z (-0.4, 0.1, 1.25) in this intentionally idle foundation fork. No movement hack or unrelated code edit was made.
 
-HARNESS: defect-dead-input-the-parent-remains-at- cannot pass in this home-owned idle foundation fork: createGameplay.update is intentionally empty, and the director explicitly assigns movement/chore behavior to the chores worker. Route this defect to chores/integration and evaluate it after that merge; do not require home to edit gameplay/characters or main outside FACET WIRING. The camera correctly reports/photographs the unchanged player, so re-pointing the camera would not fix input.
+Historical HARNESS flag, resolved by chores merge before iteration 3: defect-dead-input-the-parent-remains-at- could not pass in this home-owned idle foundation fork: createGameplay.update is intentionally empty, and the director explicitly assigns movement/chore behavior to the chores worker. Route this defect to chores/integration and evaluate it after that merge; do not require home to edit gameplay/characters or main outside FACET WIRING. The camera correctly reports/photographs the unchanged player, so re-pointing the camera would not fix input.
 
 ---
 
