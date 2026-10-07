@@ -32,6 +32,8 @@ app.gameplay = createGameplay(app);
 
 // ── FACET WIRING ──
 // Each facet adds exactly ONE import and ONE app.extensions.push(createFacet(app)) line here.
+import { createPresentation } from "./presentation.js";
+app.extensions.push(createPresentation(app));
 // ── END FACET WIRING ──
 
 const cameras = {
