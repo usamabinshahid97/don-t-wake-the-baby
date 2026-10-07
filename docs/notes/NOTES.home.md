@@ -1,3 +1,47 @@
+# Cozy dollhouse — iteration 2: distinct chore landmarks
+
+Read `.studio/BRIEF.md` first and inspected the accepted live default before editing. Iteration 1 passed cozy-night-home, mapped-room, no-dom-ui and single-hud. Followed the director steer: focus on useful pacifier/toy/sink/door landmarks, preserve the accepted lighting and navigation, and stop without room expansion, extra furnishing, character animation, audio or movement work.
+
+## This iteration's mandatory move
+
+- Pacifier: replaced the flat saucer shield with a rounded extruded pink butterfly shield, raised mint grab loop, contrasting vents and teat. Same `pacifier` group, exact target position (0.7, 0.18, -0.43), and same public `ring` mesh handle. Existing meshes retain identity; only their geometry/material/local pose changes. The 1.8× miniature has a distinct silhouette visible in the full 960×600 frame. Its loop bottom rests on the rug.
+- Sink: a relief water-drop tile physically mounted against the existing rear wall, and a larger handled mug with a dark water surface and ivory rim. All additions are attached to the existing water-station; no target movement.
+- Doorstep: thin woven SHH mat, amber doorbell and brass mail slot at the existing door. The lettering is physical embroidery on a floor mesh, not a floating marker, sprite UI or HUD. The mat is nonblocking cosmetic dressing.
+- Toy: enlarged BEEP-O's existing glowing power cap and added a physical power symbol. Existing `toys`, `toyBlocks`, antenna, robot face, eyes and `toy-off-button` handles/tags remain. The registered extension still consumes gameplay state for toy dimming; no new gameplay or character behavior.
+
+No furniture, room expansion or optional bunny-surface work was added. Reused the exact delivered generated bunny with its loading callback unchanged; no new asset generation was required.
+
+## Navigation and API verification
+
+**Added navigation footprint changes: none.** The original collision snapshot is still built before cosmetic dressing. Stored min/max values, blocking flags, bounds, taskTargets, target group positions, bunny URL, load/reset callbacks and all original returned handles remain intact. Cosmetic doorbell/tile/mat are excluded from collision snapshots; they do not make routes solid. The mug's cosmetic scale/height changes do not change the sink target or stored footprint.
+
+Geometry API decisions: no changes at all to `src/geometry.js` this iteration. All signatures, materials color/roughness handling and character dependencies match the accepted build. No changes to main or its existing one-import/one-init wiring. `home-atmosphere.js` remains the dressing module; world only passes the existing kitchen/mug/door handles into it.
+
+A temporary in-memory Node assertion confirmed world.js is byte-identical to the accepted version outside the dressing arguments, and geometry/main/gameplay/characters/materials/studio are unchanged. It also checked exact target declarations, snapshot-before-decoration ordering, and absence of input listeners, DOM append, random or wall-clock sources. Node syntax checks and git diff --check passed. No test fixtures shipped.
+
+## Fixed by looking
+
+- Baseline `iter_002/s1_screen.jpg` matches the accepted frame: lamp/moonlight balance works, but pacifier is saucer-like and sink/door landmarks are weak.
+- Inspected `iter_002/c1_default.jpg` and `s1_zoom.jpg`: raised pacifier loop and butterfly shield read clearly, water tile/mug, doorstep mat/doorbell and power icon are visible. Noticed the water tile was floating ahead of the wall and the pacifier loop bottom was slightly above the rug.
+- Mounted the tile against the existing wall and lowered only local pacifier parts. Inspected `iter_002/c2_default.jpg`: landmarks remain visible, no lighting changes, and center route remains open.
+- Ran W 1.2s, A 0.8s, Space and inspected final `iter_002/s2_screen.jpg` at 960×600. The new silhouette is clear in the photographed frame. Console errors since load: none; live performance 60–62 FPS, 504 scene draw calls, 445,220 scene triangles. MeanLuma remains 38, matching the accepted night atmosphere.
+
+Frame directory:
+`/Users/usamabinshahid/Library/Application Support/Genex/runs/run_muy4m15o5n23/facet_home/self/iter_002/`.
+Compare accepted `s1_screen.jpg` with final `c2_default.jpg` / `s2_screen.jpg`.
+
+## Contract review
+
+- cozy-night-home: accepted lighting/materials/camera remain unchanged; final frame still shows warm lamp, blue window panes, readable rounded furniture.
+- mapped-room: actual scene traversal probes `homeMappedSurfaces: true`, `sofaMappedSurfaces: true`. Every new standard material also uses a texture map.
+- no-dom-ui / single-hud: unchanged canvas HUD, no new HUD object or visible DOM. Physical prop lettering is a mapped mesh, and screenshot/state retain the original three HUD labels.
+- defect-the-pacifier-near-the-rug-s-right: raised loop and butterfly shield replace the saucer silhouette; visually inspected at the original default camera/full resolution. Awaiting judge result, not claiming acceptance.
+- defect-dead-input-the-parent-remains-at-: input sequence still reports exact player x/y/z (-0.4, 0.1, 1.25) in this intentionally idle foundation fork. No movement hack or unrelated code edit was made.
+
+HARNESS: defect-dead-input-the-parent-remains-at- cannot pass in this home-owned idle foundation fork: createGameplay.update is intentionally empty, and the director explicitly assigns movement/chore behavior to the chores worker. Route this defect to chores/integration and evaluate it after that merge; do not require home to edit gameplay/characters or main outside FACET WIRING. The camera correctly reports/photographs the unchanged player, so re-pointing the camera would not fix input.
+
+---
+
 # Cozy dollhouse — iteration 1
 
 Read `.studio/BRIEF.md` first, then `CLAUDE.md`, existing world/geometry/main, the attached baseline, and live `s1_screen.jpg`. The original room was bright and evenly lit with a small lamp; the mandatory move was a visible amber-versus-moonlit nighttime atmosphere with tactile miniature surfaces.

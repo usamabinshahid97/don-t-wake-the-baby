@@ -3,7 +3,7 @@ import { box, ball, rod, group, mappedMaterial as mat } from "./geometry.js";
 
 // Static, nonblocking dressing. Caller freezes navigation footprints before this step.
 export function dressNightHome(scene, w) {
-  const { home, sofa, nightstand, toys, toyBlocks, pacifier, cream, oak, ink } = w;
+  const { home, sofa, nightstand, toys, toyBlocks, pacifier, ring, kitchen, mug, mugHandle, door, cream, oak, ink } = w;
   const root = group(scene, "night-atmosphere");
   const cloth = mat("#a6b2bc", 0.94, { kind: "cloth", grain: 0.5, repeat: 2, bumpScale: 0.008 });
   const piping = mat("#f3c1ab", 0.9, { kind: "cloth", grain: 0.3 });
@@ -95,16 +95,85 @@ export function dressNightHome(scene, w) {
     box(block, 0.29, 0.055, 0.27, cream, 0, 0.17, 0, 0.025);
     for (const x of [-0.07, 0.04]) box(block, 0.035, 0.014, 0.15, ink, x, 0.203, -0.03, 0.006);
   }
-  pacifier.scale.setScalar(1.65);
-  // A teat and two shield vents make the floor object recognisable as a pacifier.
-  ball(pacifier, 0, 0.015, -0.06, 0.052, 0.07, 0.045, cream);
-  for (const x of [-0.10, 0.10]) ball(pacifier, x, 0.035, 0, 0.018, 0.007, 0.018, ink);
+  // A raised loop and butterfly shield, rather than a flat saucer. Preserve both handles.
+  pacifier.scale.setScalar(1.8);
+  const shield = pacifier.children[0];
+  const outline = new THREE.Shape();
+  outline.moveTo(0, 0.10);
+  outline.bezierCurveTo(-0.12, 0.23, -0.29, 0.19, -0.28, 0.06);
+  outline.bezierCurveTo(-0.27, -0.12, -0.11, -0.09, 0, -0.045);
+  outline.bezierCurveTo(0.11, -0.09, 0.27, -0.12, 0.28, 0.06);
+  outline.bezierCurveTo(0.29, 0.19, 0.12, 0.23, 0, 0.10);
+  shield.geometry.dispose();
+  shield.geometry = new THREE.ExtrudeGeometry(outline, { depth: 0.045, bevelEnabled: true,
+    bevelThickness: 0.018, bevelSize: 0.018, bevelSegments: 3, curveSegments: 12 });
+  shield.scale.set(1, 1, 1); shield.position.set(0, 0.08, -0.035);
+  shield.material = mat("#ef85a8", 0.58, { grain: 0.15 });
+  shield.userData.tag = "pacifier-butterfly-shield";
+  ring.geometry.dispose(); ring.geometry = new THREE.TorusGeometry(0.17, 0.035, 10, 36);
+  ring.rotation.set(-0.16, 0, 0); ring.position.set(0, 0.19, 0.13);
+  ring.material = mat("#d0f3df", 0.5, { grain: 0.1 });
+  ring.userData.tag = "pacifier-grab-loop";
+  ball(pacifier, 0, 0.08, -0.14, 0.075, 0.075, 0.16, cream);
+  for (const x of [-0.20, 0.20]) ball(pacifier, x, 0.13, 0.025, 0.025, 0.032, 0.009, ink);
+  ball(pacifier, 0, 0.08, 0.085, 0.078, 0.05, 0.05, ring.material);
+
+  // Four authored chore landmarks; all dressing is added AFTER collision snapshots.
+  // A water-drop backsplash tile and jumbo handled mug mark the hydration station.
+  const waterTile = group(kitchen, "water-drop-tile", 0.50, 1.83, -1.00);
+  box(waterTile, 0.61, 0.64, 0.065, cream, 0, 0, 0, 0.06);
+  const waterMaterial = mat("#65c8de", 0.48, { grain: 0.12,
+    emissive: "#3995bc", emissiveIntensity: 0.18 });
+  const drop = new THREE.Shape();
+  drop.moveTo(0, 0.23); drop.bezierCurveTo(-0.02, 0.12, -0.18, -0.04, -0.17, -0.12);
+  drop.bezierCurveTo(-0.15, -0.30, 0.15, -0.30, 0.17, -0.12);
+  drop.bezierCurveTo(0.18, -0.04, 0.02, 0.12, 0, 0.23);
+  const dropMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(drop, { depth: 0.018,
+    bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 2 }), waterMaterial);
+  dropMesh.position.z = 0.042; dropMesh.userData.tag = "water-drop-symbol"; waterTile.add(dropMesh);
+  ball(waterTile, -0.055, -0.10, 0.08, 0.025, 0.05, 0.009, cream);
+  mug.scale.setScalar(1.45); mug.position.y = 1.385;
+  mugHandle.scale.setScalar(1.45); mugHandle.position.set(0.84, 1.40, 0.1);
+  // Dark liquid and an ivory lip remove the solid-cylinder reading of the cup.
+  const water = new THREE.Mesh(new THREE.CircleGeometry(0.13, 24), mat("#315a77", 0.32));
+  water.rotation.x = -Math.PI / 2; water.position.y = 0.126; water.userData.tag = "mug-water"; mug.add(water);
+  const lip = new THREE.Mesh(new THREE.TorusGeometry(0.145, 0.016, 8, 28), cream);
+  lip.rotation.x = Math.PI / 2; lip.position.y = 0.126; lip.userData.tag = "mug-rim"; mug.add(lip);
+
+  // A woven doorstep mat and the unmistakable illuminated doorbell identify the last chore.
+  const doorstep = group(root, "quiet-doorstep", door.position.x, 0, door.position.z);
+  box(doorstep, 1.47, 0.025, 0.81, mat("#bb926e", 0.97, { kind: "cloth", grain: 0.5 }), 0, 0.092, 0.69, 0.035);
+  box(doorstep, 1.30, 0.008, 0.65, mat("#536e77", 0.95, { kind: "cloth", grain: 0.4 }), 0, 0.110, 0.69, 0.025);
+  // Physical embroidery, baked into a mapped floor mesh; no sprite or HUD marker.
+  const stamp = document.createElement("canvas"); stamp.width = 256; stamp.height = 128;
+  const stampCtx = stamp.getContext("2d");
+  stampCtx.fillStyle = "#e7c9a3"; stampCtx.font = "bold 72px Trebuchet MS, sans-serif";
+  stampCtx.textAlign = "center"; stampCtx.textBaseline = "middle"; stampCtx.fillText("SHH", 128, 65);
+  const stampMap = new THREE.CanvasTexture(stamp); stampMap.colorSpace = THREE.SRGBColorSpace;
+  const embroidery = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.43), mat("#ffffff", 0.95,
+    { map: stampMap, transparent: true, depthWrite: false }));
+  embroidery.rotation.x = -Math.PI / 2; embroidery.position.set(0, 0.116, 0.69);
+  embroidery.userData.tag = "doorstep-embroidery"; doorstep.add(embroidery);
+  const doorbell = group(door, "doorbell", 0.76, 1.35, 0.19);
+  box(doorbell, 0.24, 0.45, 0.07, oak, 0, 0, 0, 0.06);
+  const bellMaterial = mat("#ffc87b", 0.42, { emissive: "#ffb95a", emissiveIntensity: 0.38 });
+  ball(doorbell, 0, -0.04, 0.065, 0.075, 0.075, 0.035, bellMaterial);
+  // Brass mail slot and relief panel add purpose to the existing door, within its frame.
+  box(door, 0.48, 0.095, 0.035, cream, 0, 0.83, 0.18, 0.025);
+  box(door, 0.37, 0.025, 0.01, ink, 0, 0.83, 0.203, 0.006);
+
+  // A big glowing power cap tells the player exactly which part of BEEP-O to silence.
+  button.scale.multiplyScalar(1.45);
+  const power = group(body, "toy-power-symbol", 0.075, 0.276, 0);
+  const powerArc = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.007, 6, 24, Math.PI * 1.65), cream);
+  powerArc.rotation.set(-Math.PI / 2, 0, Math.PI * 0.675); powerArc.userData.tag = "toy-power-arc";
+  power.add(powerArc); rod(power, [0, 0.004, -0.052], [0, 0.004, -0.004], 0.008, cream);
 
   // Descendants inherit the semantic group, and also carry useful explicit part tags.
-  for (const object of [root, home, sofa, nightstand, toys, pacifier]) object.traverse(o => {
+  for (const object of [root, home, sofa, nightstand, toys, pacifier, kitchen, door]) object.traverse(o => {
     if (!o.userData.tag) o.userData.tag = `${object.userData.tag}-detail`;
   });
-  return { root, button, buttonMaterial, eyeMat };
+  return { root, button, buttonMaterial, eyeMat, waterMaterial, bellMaterial };
 }
 
 // Visual-only extension: consumes stable gameplay state and never changes tasks/noise.

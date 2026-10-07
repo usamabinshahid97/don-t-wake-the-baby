@@ -144,7 +144,7 @@ export function createWorld(scene) {
   // Freeze the original authored footprints BEFORE cosmetic detailing. Decoration never
   // becomes a solid obstacle and task target/group positions retain their original values.
   const atmosphere = dressNightHome(scene, { home, sofa, crib, nightstand, toys, toyBlocks,
-    pacifier, ring, lamp, cream, oak, ink });
+    pacifier, ring, kitchen, mug, mugHandle, door, lamp, cream, oak, ink });
   const resetPoses = capturePoses([home, door, kitchen, rug, sofa, crib, nightstand, toys, duck,
     pacifier, bunny, ambient, key, rim, lamp, ground, atmosphere.root]);
   return {
