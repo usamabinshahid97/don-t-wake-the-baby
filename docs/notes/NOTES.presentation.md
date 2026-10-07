@@ -1,68 +1,110 @@
-# Presentation facet — iteration 1
+# Presentation facet — iteration 3
 
-## Visible move
+## Delivered against merged gameplay
 
-Added `src/presentation.js`, exporting `createPresentation(app)` with `name` and `id`
-both `presentation`, and bindHud/update/reset/probes hooks. Main changed by exactly one
-import and one extension push within FACET WIRING. No other game module changed.
+The worktree is now integrated on 7096b02. Recovered the previous attempt's large comic
+feedback layout, then replaced its caption consumption to work with actual gameplay events.
+Progress, completion, noisy mistakes, quiet win, baby waking and replay are now verified by
+real inputs and real gameplay demos. No authored state or fake HUD snapshots were used for
+this iteration's screenshot evidence. Stop here at the prescribed feedback/outcome ladder.
 
-The existing single canvas HUD now frames the dollhouse with a warm title, four midnight
-errands, completion checkmarks/count/bar, labeled 0–100 noise meter (mint/amber/coral),
-baby mood, nearest-task Hold E prompt and progress, movement/tiptoe/replay hints, and brief
-comic feedback. Won: “PARENT OF THE NIGHT.” Lost: “YOU WOKE THE BOSS.” Both show R replay.
-The three base HUD IDs are removed consistently during bindHud. No title screen blocks input.
+Only `src/presentation.js` and this notes file changed. Main wiring remains the existing one
+import/one push. No rooms, objects, task markers, meshes, world materials, gameplay, audio,
+character rigs, input handlers or second HUD were added or modified.
 
-## Shared integration contract
+## Feedback mechanism
 
-Reads only `app.gameplay.state`; no state shape changes, input handlers, or gameplay writes.
-`tasks` retains ordered ID semantics. Optional `completedTasks` takes precedence over the
-ordered `tasksCompleted` fallback. Missing state renders defensively. Noise is clamped and
-rounded; interactionProgress is clamped and quantized to 1%. Completed nearest tasks hide
-their interaction prompt. `eventId` gates a 3.5 simulated-second caption from `lastEvent.text`,
-or completion/noise comic copy. Completion gives a very subtle cream flash, never a red wash.
-Gameplay should suppress its fallback HUD when a presentation extension exists.
+- Each active chore gets a large named headline with percentage, Hold E instruction and
+  progress bars in its task row and footer (`PACIFIER RESCUE · 50%`, for example).
+- Completion gets a mint chore-specific punchline, completed-errand count, bold checkmark
+  and brief mint underline. The nearest/current chore is named beside the task counter.
+- Noisy mistakes get coral headlines and +noise context. Stomp: `THUMP. STEALTH: 0/10.`;
+  duck: `QUACK. THE DUCK IS A SNITCH.`; other squeaks: `SQUEAK. BETRAYAL.`.
+- Toy warning (`UNINVITED ENCORE.`), door knock (`WHO KNOCKS AT 2:13 AM?`) and baby stirring
+  (`WAS THAT AN EYE TWITCH?`, amber) are separate messages. The baby status remains separate.
+- Won/lost outcomes preserve the entire dollhouse and immediately show R replay plus M mute.
+  M is also visible during play. The audio facet continues to own mute behavior.
 
-Identical text/bar payloads do not call the HUD API again. Viewport changes invalidate the
-cache once, including size changes that keep the same rounded font size. Reset clears only
-presentation transients and rerenders the freshly reset shared state. Probes are nested under
-`presentation` and do not override gameplay keys.
+The original problem was an event-consumption mechanism: every new event, including a
+footstep with no text, erased the caption. Gameplay also emits noise and then mood in the
+same step, so lastEvent alone can miss the noise. Presentation now reads the optional bounded
+shared `events` history since its previous ID, selects the latest meaningful non-mood event,
+and falls back to lastEvent when no history is available. Footsteps and empty events cannot
+erase an existing caption. Mood is displayed on its own when no higher-priority event shares
+that sample. State-only completion changes remain a defensive fallback.
 
-## Fixed by looking
+One caption lasts four simulated seconds; there is no event queue or comic sequence system.
+Repeated IDs do not replay flashes or captions. Noise uses an explicit gameplay event amount
+when provided, otherwise the actual observed noise change; the event.noise total is not
+misread as a delta. The existing text/bar cache still suppresses identical HUD API writes.
+Timer changes alone do not repaint; progress is quantized to 1%; resize invalidates once.
+Reset baselines the new source state and clears feedback. Won/lost copy overrides transients.
+The shared state shape and eventId/lastEvent contract were not changed.
 
-- Compared the initial reference/live frame with captures c1/c2: the previously empty margin
-  now carries four readable chores, while the entire dollhouse remains visible.
-- Checked actual canvas/camera resize captures: c3 at 640×400, c7 at 480×320, and c8 at
-  800×600. Smaller layouts reduce type sizes and compact the control line; the narrow layout
-  puts noise below the title. No prompt, control, or task text is clipped in these frames.
-- Presentation-only input fixtures showed out-of-order checkmarks, highlighted pacifier,
-  63% Hold E progress, coral 76% noise and stirring mood in c4; won copy/checkmarks in c5;
-  lost copy/awake mood in c6. These fixtures replaced the presentation reader only, never
-  gameplay state, and are absent from the shipped module. After looking, replaced the
-  future-tense danger label on outcomes with phase-appropriate copy.
-- c9 inspected the real live studio graph: `count('hud') === 1` and `domUi().length === 0`.
-  The temporary inspection was removed. Final c10 is the restored production module at
-  960×600, with no fixtures or forced dimensions; console errors: none.
+## Real deterministic review demos
+
+Registered `presentation-chore-progress`, `presentation-chore-complete` and
+`presentation-noisy-mistake` through the existing extension demos seam. The first two reuse
+the actual quiet-win route and stop at an actual 50% interaction/first completion checkpoint.
+They split fixed-step calls only during review, restore the original studio step method in
+finally, and release held keys. The noise demo uses Space through studio's real held-key path.
+No demo writes gameplay state, scores, noise, completion or transforms. Existing quiet-win,
+wake-the-baby and wake-and-replay remain the full-loop outcome/replay tests.
+
+## Fixed by looking — real screenshot evidence
+
+All captures below used the integrated dollhouse and gameplay, viewed from the primary
+camera's same position. Temporary capture camera aliases only invoked actual demos; they
+were removed afterward. Temporary resize code only changed the existing canvas/camera size
+and was also removed. There are no mock views or forced dimensions in the shipped module.
+
+- c1_default: accepted presentation on merged world before changes.
+- c2_default: updated default HUD with current/next chore and M hint; dollhouse remains clear.
+- s1_screen: clicked/focused canvas, held W 1.2s, A 0.8s, tapped Space. Parent moved from
+  (-0.4, 0.1, 1.25) to (-3.88438, 0.1, -0.43106), distanceTravelled 5.1079m. Noise rose from
+  zero to about 23. The frame visibly shows the new THUMP punchline and +16 noise.
+- c3_presentation-progress-shot: actual pacifier interaction at 50%, target reached by real
+  tiptoe input. Both progress bars, percentage and Hold E instruction are visible.
+- c3_presentation-complete-shot: real pacifier completion, 1/4 checkmark, mint underline,
+  `PEACE PLUG: FOUND.` and actual `Tiny peace treaty secured.` event text.
+- c3_presentation-noise-shot: actual Space stomp, 24 noise, THUMP/+16 feedback.
+- c3_presentation-win-shot: real quiet-win completes all four chores at about 20 noise;
+  parent relief pose, `PARENT OF THE NIGHT.` and R replay/M mute remain readable.
+- c3_presentation-wake-shot: real wake-the-baby reaches 100 noise; visibly awake/crying baby,
+  `YOU WOKE THE BOSS.` and R replay/M mute.
+- c3_presentation-replay-shot: real wake-and-replay reports woke=true, replayed=true; HUD and
+  characters return to sleeping, 0/4, about 8 noise, with all interaction bars cleared.
+- c4_toy-warning / c5_door-warning: real Shift+W/S shuttling produces the game's timed toy
+  and door warnings, each with its distinct headline and observed +4 noise.
+- c6_progress-640 / c7_progress-480: actual 50% pacifier progress after resizing the existing
+  canvas to 640×400 / 480×320. Headline, task bars, prompt and all controls fit below/beside
+  the dollhouse without clipping. No new markers were added.
+- c8_default: restored production module at 960×600, no test aliases or resize code;
+  console errors none. Subsequent live M press changed audioMuted false→true after unlock.
 
 Capture root:
-`/Users/usamabinshahid/Library/Application Support/Genex/runs/run_muy4m15o5n23/facet_presentation/self/iter_001/`
-All referenced cN frames are `cN_default.jpg`, from the registered primary `default` camera.
+`/Users/usamabinshahid/Library/Application Support/Genex/runs/run_muy4m15o5n23/facet_presentation/self/iter_003/`
+Each named capture is a .jpg in that directory. All images were opened and inspected.
 
 ## Checks and validation
 
-- hud-reads: visually verified controls, four chores and labeled noise at every tested size.
-- single-display / no-dom-ui / single-hud: live graph inspection reported one HUD and zero
-  visible DOM UI elements. No scene objects or additional overlay canvases were created here.
-- Node syntax check passes. Mock-HUD assertions pass for idle/missing state safety, 100
-  unchanged updates making zero additional HUD writes, out-of-order completions, warning
-  color, mood, progress, event expiry, outcome/replay copy, and shared-state immutability.
-- Required W 1.2s / A 0.8s / Space input sequence was driven in the live window. In this
-  isolated copy the idle gameplay stub leaves parent position (-0.4, 0.1, 1.25) unchanged.
-  Movement remains the gameplay facet's responsibility.
+- hud-reads: four chores, labeled noise, controls and complete dollhouse remain readable.
+- single-display / no-dom-ui / single-hud: actual integrated characterContract inspection
+  reports hudObjects=1 and visibleDomElements=0; no additional scene objects exist here.
+- The prior dead-input HARNESS flag described the old idle fork and is obsolete for these
+  captures: clicked/focused scripted controls produced 5.1m of real movement and real noise.
+  Input/mechanics remain owned by chores, not this facet.
+- Node syntax and git diff whitespace checks pass.
+- Mock-HUD assertions (separate from screenshot evidence) pass for completion surviving
+  footsteps/empty events, same-step squeak+mood history consumption, distinct toy/door/mood
+  messages, stomp and measured/explicit noise amounts, one-shot flash, lifetime/expiry/reset,
+  named progress, terminal priority/M hints, no unchanged-state API churn, and no game-state
+  mutation. Real gameplay demos additionally verify the actual triggers and outcomes above.
 
-## Remaining integration validation
+## Prior attempts
 
-Actual task interactions, naturally rising noise, baby animation transitions, achievable
-win/loss and R replay cannot be played through against the idle `phase: 'scene'` gameplay
-stub. Outcome screenshots prove presentation handling of the agreed state values only.
-Retest real completion/events/outcomes after gameplay merges. No assets were needed for
-this canvas-only facet; the existing dollhouse and characters remain the visual foundation.
+Iteration 1 established the accepted single-canvas presentation and passed all four identity
+checks. Iteration 2 was rejected because its idle-fork reviews never delivered live feedback;
+its mock layout proof did not establish gameplay behavior. This iteration replaces that gap
+with merged gameplay and real input/demo captures, and fixes the event-erasure mechanism.
+No additional optional system is required or planned.
