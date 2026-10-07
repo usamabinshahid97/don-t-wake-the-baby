@@ -94,7 +94,8 @@ export function createPresentation(app) {
     });
 
     text("chores", `MIDNIGHT ERRANDS  ${state.count}/4`, { x, y: tiny ? 0.305 : 0.252, size: font(12), weight: 800, color: INK.amber });
-    text("current-task", ended ? "Night shift: finished." : state.nearest ? `AT: ${CHORES[state.nearest].label}`
+    text("current-task", state.phase === "won" ? "All errands finished." : state.phase === "lost"
+      ? `Night shift interrupted · ${state.order.length - state.count} chores left` : state.nearest ? `AT: ${CHORES[state.nearest].label}`
       : nextTask ? `NEXT: ${CHORES[nextTask].label}` : "All errands done.", {
       x, y: tiny ? 0.351 : 0.292, size: font(12), color: INK.soft,
     });
@@ -161,7 +162,7 @@ export function createPresentation(app) {
   function announce(event, state, completedTask = null) {
     const type = String(event?.type ?? "").replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
     const explicitCompletion = /(^|[-_ ])(complete[d]?|completion|success|done)([-_ ]|$)/.test(type);
-    const noisy = /noise|squeak|bump|bonk|hazard|collision|trip|creak|clatter|stomp|knock/.test(type) || type === "toy";
+    const noisy = /noise|squeak|bump|bonk|hazard|collision|trip|creak|clatter|stomp|knock/.test(type) || type === "toy" || type === "toy-alarm";
     const complete = explicitCompletion || (completedTask && !noisy);
     const task = complete && !explicitCompletion ? completedTask : CHORES[event?.task] ? event.task : completedTask;
     const message = String(event?.text ?? "").replace(/\s+/g, " ").trim();
@@ -173,7 +174,7 @@ export function createPresentation(app) {
       // lastEvent.noise has no promised delta semantics. Measure the actual state change.
       const delta = Math.max(0, Math.round(Number.isFinite(event?.amount) ? event.amount : clamp(state.source.noise, 100) - lastNoise));
       const headline = type === "stomp" ? "THUMP. STEALTH: 0/10."
-        : type === "toy" ? "UNINVITED ENCORE."
+        : type === "toy" || type === "toy-alarm" ? "UNINVITED ENCORE."
           : /knock/.test(type) ? "WHO KNOCKS AT 2:13 AM?"
             : /squeak/.test(type) ? event?.hazard === "duck" ? "QUACK. THE DUCK IS A SNITCH." : "SQUEAK. BETRAYAL."
               : /bump|bonk|collision|trip/.test(type) ? "BONK. ACT NATURAL." : "SHHH. THAT WAS LOUD.";
